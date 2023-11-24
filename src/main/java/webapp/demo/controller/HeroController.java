@@ -1,6 +1,10 @@
 package webapp.demo.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 import webapp.demo.model.Hero;
 
@@ -21,16 +25,6 @@ public class HeroController {
         initHeroesList();
     }
 
-    /**
-     * Permet de récupérer la liste des héros sous forme de List de Hero. Pour le moment, les Hero sont ajoutés à la main dans
-     * l'ArrayList heroesList présente en attribut de la classe.
-     *
-     * @return heroesList, List de Hero
-     */
-
-    public List<Hero> getHeroesList() {
-        return heroesList;
-    }
 
     public void initHeroesList() {
         heroesList.add(new Hero(1, "JB", "warrior", 5));
@@ -38,15 +32,23 @@ public class HeroController {
         heroesList.add(new Hero(3, "Massimo", "warrior", 5));
     }
 
-
     /**
      * Méthode permettant d'afficher tous les héros en format JSON dans le navigateur grâce à la mention @GetMapping.
      *
      * @return une Liste de Hero
      */
+    @Operation(summary = "Retourne la liste des héros")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste trouvée",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Liste non trouvée",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Liste non trouvée",
+                    content = @Content)})
     @GetMapping("/heroes")
-    public List<Hero> displayHeroes() {
-        return getHeroesList();
+    public List<Hero> getHeroes() {
+        return heroesList;
     }
 
     /**
@@ -57,24 +59,59 @@ public class HeroController {
      * @param id - id du héros recherché
      * @return un Hero
      */
+    @Operation(summary = "Retourne un héros selon un id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros trouvé",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Héros non trouvée",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros non accessible",
+                    content = @Content)})
     @GetMapping("/heroes/{id}")
     public Hero getHeroByID(@PathVariable int id) throws NoSuchElementException {
-        return getHeroesList().stream()
+        return getHeroes().stream()
                 .filter(hero -> hero.getId() == id)
                 .findFirst().orElseThrow();
     }
 
+    @Operation(summary = "Ajoute un héros à la liste")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros ajouté à la liste",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Héros non ajouté, le format n'est pas bon",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros non ajouté car la liste n'existe pas",
+                    content = @Content)})
     @PostMapping("/heroes")
     public void addHero(@RequestBody Hero hero) {
         heroesList.add(hero);
     }
 
+    @Operation(summary = "Permet de remplacer un héros par un nouveau", description = "Un JSON est attendu en RequestBody")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros remplacé",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Héros non remplacé car le format n'es pas bon",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros non remplacé car le héros à remplacer n'existe pas",
+                    content = @Content)})
     @PutMapping("/heroes/{id}")
     public void updateHero(@RequestBody Hero hero, @PathVariable int id) {
         heroesList.set(id, hero);
     }
 
-    @Operation(summary = "deleteHero()", description = "permet de supprimer un hero de la liste")
+    @Operation(summary = "Supprime un héros")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros supprimé",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class)) }),
+            @ApiResponse(responseCode = "400", description = "Héros à supprimer non supprimé car entrée invalide",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros à supprimer non trouvé",
+                    content = @Content) })
     @DeleteMapping("/heroes/{id}")
     public List deleteHero(@PathVariable int id) {
         try {
