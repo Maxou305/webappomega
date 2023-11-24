@@ -1,8 +1,17 @@
 package webapp.demo.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Classe Hero permettant d'instancier des héros.
  */
+@Schema (description = "Cool", example = """
+        {"id": int,
+        "name": String,
+        "type": String,
+        "life": int}
+        """)
+
 public class Hero {
     private int id;
     private String name;

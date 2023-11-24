@@ -1,11 +1,13 @@
 package webapp.demo.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.*;
 import webapp.demo.model.Hero;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+
 
 /**
  * Controller de Hero. Va s'occuper de tout ce qui est lié au Hero. Pour le moment intègre les méthodes getters et display
@@ -16,6 +18,7 @@ public class HeroController {
     private List<Hero> heroesList = new ArrayList<>();
 
     public HeroController() {
+        initHeroesList();
     }
 
     /**
@@ -26,11 +29,15 @@ public class HeroController {
      */
 
     public List<Hero> getHeroesList() {
+        return heroesList;
+    }
+
+    public void initHeroesList() {
         heroesList.add(new Hero(1, "JB", "warrior", 5));
         heroesList.add(new Hero(2, "Nathalie", "wizard", 8));
         heroesList.add(new Hero(3, "Massimo", "warrior", 5));
-        return heroesList;
     }
+
 
     /**
      * Méthode permettant d'afficher tous les héros en format JSON dans le navigateur grâce à la mention @GetMapping.
@@ -51,11 +58,10 @@ public class HeroController {
      * @return un Hero
      */
     @GetMapping("/heroes/{id}")
-    public Optional<Hero> displayHeroByID(@PathVariable int id) {
-        return getHeroesList()
-                .stream()
+    public Hero getHeroByID(@PathVariable int id) throws NoSuchElementException {
+        return getHeroesList().stream()
                 .filter(hero -> hero.getId() == id)
-                .findFirst();
+                .findFirst().orElseThrow();
     }
 
     @PostMapping("/heroes")
@@ -68,8 +74,13 @@ public class HeroController {
         heroesList.set(id, hero);
     }
 
+    @Operation(summary = "deleteHero()", description = "permet de supprimer un hero de la liste")
     @DeleteMapping("/heroes/{id}")
-    public void deleteHero(@PathVariable int id) {
-        heroesList.remove(id);
+    public List deleteHero(@PathVariable int id) {
+        try {
+            heroesList.remove(getHeroByID(id));
+        } catch (NoSuchElementException e) {
+        }
+        return heroesList;
     }
 }
