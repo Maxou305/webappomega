@@ -85,8 +85,9 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non ajouté car la liste n'existe pas",
                     content = @Content)})
     @PostMapping("/heroes")
-    public void addHero(@RequestBody Hero hero) {
+    public List<Hero> addHero(@RequestBody Hero hero) {
         heroesList.add(hero);
+        return heroesList;
     }
 
     @Operation(summary = "Permet de remplacer un héros par un nouveau", description = "Un JSON est attendu en RequestBody")
@@ -106,12 +107,12 @@ public class HeroController {
     @Operation(summary = "Supprime un héros")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Héros supprimé",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Hero.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
             @ApiResponse(responseCode = "400", description = "Héros à supprimer non supprimé car entrée invalide",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Héros à supprimer non trouvé",
-                    content = @Content) })
+                    content = @Content)})
     @DeleteMapping("/heroes/{id}")
     public List deleteHero(@PathVariable int id) {
         try {
