@@ -2,8 +2,21 @@ package webapp.demo.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Classe Hero permettant d'instancier des héros.
@@ -16,10 +29,15 @@ import org.springframework.boot.autoconfigure.AutoConfigureOrder;
         """)
 @Entity
 public class Hero {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @NotBlank (message = "Le nom est obligatoire !")
     private String name;
+    @NotBlank (message = "Le type est obligatoire !")
     private String type;
+    @Max(11)
     private int life;
 
     public Hero() {
@@ -83,5 +101,18 @@ public class Hero {
 
     public void setId(Long id) {
         this.id = Math.toIntExact(id);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }

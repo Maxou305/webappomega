@@ -5,14 +5,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import webapp.demo.model.DAO;
 import webapp.demo.model.Hero;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-
+import java.util.Map;
 
 @RestController
 @Repository
@@ -33,7 +37,7 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non remplacé car le héros à remplacer n'existe pas",
                     content = @Content)})
     @PutMapping("/heroes/{id}")
-    public List<Hero> updateHero(@RequestBody Hero hero, @PathVariable int id) {
+    public List<Hero> updateHero(@Valid @RequestBody Hero hero,@Valid @PathVariable int id) {
         Hero temp = findById(id);
         temp.setName(hero.getName());
         temp.setLife(hero.getLife());
@@ -52,7 +56,7 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros à supprimer non trouvé",
                     content = @Content)})
     @DeleteMapping("/heroes/{id}")
-    public void deleteHero(@PathVariable int id) {
+    public void deleteHero(@Valid @PathVariable int id) {
         heroDAO.deleteById(id);
     }
 
@@ -80,8 +84,8 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non accessible",
                     content = @Content)})
     @GetMapping("/heroes/{id}")
-    public Hero findById(@PathVariable int id) {
-       return heroDAO.findById(id).orElseThrow();
+    public Hero findById(@Valid @PathVariable int id) {
+        return heroDAO.findById(id).orElseThrow();
     }
 
     @Operation(summary = "Ajoute un héros à la liste")
@@ -94,9 +98,21 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non ajouté car la liste n'existe pas",
                     content = @Content)})
     @PostMapping("/heroes")
-    public Hero save(@RequestBody Hero hero) {
+    public Hero save(@Valid @RequestBody Hero hero) {
         heroDAO.save(hero);
         return hero;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
 }
