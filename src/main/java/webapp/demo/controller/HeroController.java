@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+import webapp.demo.model.DAO;
 import webapp.demo.model.Hero;
 
 import java.util.ArrayList;
@@ -18,18 +20,50 @@ import java.util.NoSuchElementException;
  * des Hero. Possède en attribut une List de Hero en ArrayList.
  */
 @RestController
-public class HeroController {
-    private List<Hero> heroesList = new ArrayList<>();
+@Repository
+public class HeroController implements DAO {
+    public static List<Hero> heroesList = new ArrayList<>();
 
     public HeroController() {
-        initHeroesList();
+    }
+
+    static {
+        heroesList.add(new Hero(1, "JB", "Warrior", 5));
+        heroesList.add(new Hero(2, "Nathalie", "Wizard", 8));
+        heroesList.add(new Hero(3, "Massimo", "Warrior", 5));
     }
 
 
-    public void initHeroesList() {
-        heroesList.add(new Hero(1, "JB", "warrior", 5));
-        heroesList.add(new Hero(2, "Nathalie", "wizard", 8));
-        heroesList.add(new Hero(3, "Massimo", "warrior", 5));
+    @Operation(summary = "Permet de remplacer un héros par un nouveau", description = "Un JSON est attendu en RequestBody")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros remplacé",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Héros non remplacé car le format n'es pas bon",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros non remplacé car le héros à remplacer n'existe pas",
+                    content = @Content)})
+    @PutMapping("/heroes/{id}")
+    public void updateHero(@RequestBody Hero hero, @PathVariable int id) {
+        heroesList.set(id, hero);
+    }
+
+    @Operation(summary = "Supprime un héros")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Héros supprimé",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Héros à supprimer non supprimé car entrée invalide",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Héros à supprimer non trouvé",
+                    content = @Content)})
+    @DeleteMapping("/heroes/{id}")
+    public List deleteHero(@PathVariable int id) {
+        try {
+            heroesList.remove(findById(id));
+        } catch (NoSuchElementException e) {
+        }
+        return heroesList;
     }
 
     /**
@@ -46,8 +80,9 @@ public class HeroController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Liste non trouvée",
                     content = @Content)})
+    @Override
     @GetMapping("/heroes")
-    public List<Hero> getHeroes() {
+    public List<Hero> findAll() {
         return heroesList;
     }
 
@@ -69,10 +104,18 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non accessible",
                     content = @Content)})
     @GetMapping("/heroes/{id}")
-    public Hero getHeroByID(@PathVariable int id) throws NoSuchElementException {
-        return getHeroes().stream()
-                .filter(hero -> hero.getId() == id)
-                .findFirst().orElseThrow();
+    @Override
+    public Hero findById(@PathVariable int id) {
+        for (Hero hero : heroesList) {
+            if (hero.getId() == id) {
+                return hero;
+            }
+        }
+        return null;
+
+        //  return getHeroes().stream()
+        //            .filter(hero -> hero.getId() == id)
+        //              .findFirst().orElseThrow();
     }
 
     @Operation(summary = "Ajoute un héros à la liste")
@@ -84,40 +127,10 @@ public class HeroController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Héros non ajouté car la liste n'existe pas",
                     content = @Content)})
+    @Override
     @PostMapping("/heroes")
-    public void addHero(@RequestBody Hero hero) {
+    public Hero save(@RequestBody Hero hero) {
         heroesList.add(hero);
-    }
-
-    @Operation(summary = "Permet de remplacer un héros par un nouveau", description = "Un JSON est attendu en RequestBody")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Héros remplacé",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Hero.class))}),
-            @ApiResponse(responseCode = "400", description = "Héros non remplacé car le format n'es pas bon",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Héros non remplacé car le héros à remplacer n'existe pas",
-                    content = @Content)})
-    @PutMapping("/heroes/{id}")
-    public void updateHero(@RequestBody Hero hero, @PathVariable int id) {
-        heroesList.set(id, hero);
-    }
-
-    @Operation(summary = "Supprime un héros")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Héros supprimé",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Hero.class)) }),
-            @ApiResponse(responseCode = "400", description = "Héros à supprimer non supprimé car entrée invalide",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Héros à supprimer non trouvé",
-                    content = @Content) })
-    @DeleteMapping("/heroes/{id}")
-    public List deleteHero(@PathVariable int id) {
-        try {
-            heroesList.remove(getHeroByID(id));
-        } catch (NoSuchElementException e) {
-        }
-        return heroesList;
+        return hero;
     }
 }
