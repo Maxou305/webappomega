@@ -1,13 +1,7 @@
 package webapp.demo.model;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DAO {
-
-    List<Hero> findAll();
-
-    Hero findById(int id);
-
-    Hero save(Hero hero);
-
+public interface DAO extends JpaRepository<Hero, Integer> {
+    Hero findByIdGreaterThan(int id);
 }

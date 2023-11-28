@@ -1,6 +1,9 @@
 package webapp.demo.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 
 /**
  * Classe Hero permettant d'instancier des héros.
@@ -11,8 +14,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
         "type": String,
         "life": int}
         """)
-
+@Entity
 public class Hero {
+    @Id
     private int id;
     private String name;
     private String type;
@@ -75,5 +79,9 @@ public class Hero {
                 ", type = '" + type + '\'' +
                 ", life = " + life +
                 '}';
+    }
+
+    public void setId(Long id) {
+        this.id = Math.toIntExact(id);
     }
 }
