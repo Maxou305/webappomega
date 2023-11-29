@@ -25,7 +25,7 @@ public class Hero {
     private String name;
     @NotBlank (message = "Le type est obligatoire !")
     private String type;
-    @Max(11)
+    @Max(value = 11, message = "La vie ne doit pas excéder 10 !")
     private int life;
 
     public Hero() {

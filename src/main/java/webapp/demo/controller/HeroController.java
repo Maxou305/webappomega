@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@Repository
+//@Repository
 public class HeroController {
     private DAO heroDAO;
 
@@ -99,8 +99,7 @@ public class HeroController {
                     content = @Content)})
     @PostMapping("/heroes")
     public Hero save(@Valid @RequestBody Hero hero) {
-        heroDAO.save(hero);
-        return hero;
+        return heroDAO.save(hero);
     }
 
     @Operation(summary = "Retourne tous les héros en vie")
