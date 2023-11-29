@@ -1,14 +1,9 @@
 package webapp.demo.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.Valid;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +23,7 @@ import java.util.Map;
         "life": int}
         """)
 @Entity
+@Table(name = "hero")
 public class Hero {
 
     @Id
@@ -43,19 +39,17 @@ public class Hero {
     public Hero() {
     }
 
-    /**
-     * Constructeur complet de Hero à 4 paramètres.
-     * @param id id du personnage (int)
-     * @param name nom du personnage (String)
-     * @param type type du personnage (String)
-     * @param life niveau de vie du personnage (int)
-     */
-    public Hero(int id, String name, String type, int life) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.life = life;
-    }
+//    public Hero(String name, String type, int life){
+//        this.name = name;
+//        this.type = type;
+//        this.life = life;
+//    }
+//    public Hero(String name, String type, int life, int id){
+//        this.id = id;
+//        this.name = name;
+//        this.type = type;
+//        this.life = life;
+//    }
 
     public int getId() {
         return id;

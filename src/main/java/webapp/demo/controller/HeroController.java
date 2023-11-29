@@ -37,7 +37,7 @@ public class HeroController {
             @ApiResponse(responseCode = "404", description = "Héros non remplacé car le héros à remplacer n'existe pas",
                     content = @Content)})
     @PutMapping("/heroes/{id}")
-    public List<Hero> updateHero(@Valid @RequestBody Hero hero,@Valid @PathVariable int id) {
+    public List<Hero> updateHero(@Valid @RequestBody Hero hero, @Valid @PathVariable int id) {
         Hero temp = findById(id);
         temp.setName(hero.getName());
         temp.setLife(hero.getLife());
@@ -101,6 +101,34 @@ public class HeroController {
     public Hero save(@Valid @RequestBody Hero hero) {
         heroDAO.save(hero);
         return hero;
+    }
+
+    @Operation(summary = "Retourne tous les héros en vie")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste retournée",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Aucun héros en vie",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Liste non retournée car introuvable",
+                    content = @Content)})
+    @GetMapping("/heroes-alive")
+    public List getAliveHeroes() {
+        return heroDAO.findByLifeGreaterThan(0);
+    }
+
+    @Operation(summary = "Retourne tous les héros du même type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste retournée",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Hero.class))}),
+            @ApiResponse(responseCode = "400", description = "Le type n'existe pas",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Liste non retournée car introuvable",
+                    content = @Content)})
+    @GetMapping("/heroes/{type}")
+    public List getHeroesByType(@Valid @PathVariable String type) {
+        return heroDAO.findByTypeEqualsOrderById(type);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
