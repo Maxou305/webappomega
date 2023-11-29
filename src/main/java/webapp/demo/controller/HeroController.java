@@ -128,7 +128,12 @@ public class HeroController {
                     content = @Content)})
     @GetMapping("/heroes-type/{type}")
     public List getHeroesByType(@Valid @PathVariable String type) {
-        return heroDAO.findByTypeEquals(type);
+        return heroDAO.findByTypeEqualsOrderByName(type);
+    }
+
+    @GetMapping("/heroes/")
+    public Hero findHeroByName(@Valid @RequestParam String name) {
+        return heroDAO.findByName(name);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

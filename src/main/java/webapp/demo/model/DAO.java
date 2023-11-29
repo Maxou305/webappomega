@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DAO extends JpaRepository<Hero, Integer> {
-    List findByTypeEquals(String type);
+    List findByTypeEqualsOrderByName(String type);
     List findByLifeGreaterThan(int life);
+    Hero findByName(String name);
 
 }
