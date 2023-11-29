@@ -126,9 +126,9 @@ public class HeroController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Liste non retournée car introuvable",
                     content = @Content)})
-    @GetMapping("/heroes/{type}")
+    @GetMapping("/heroes-type/{type}")
     public List getHeroesByType(@Valid @PathVariable String type) {
-        return heroDAO.findByTypeEqualsOrderById(type);
+        return heroDAO.findByTypeEquals(type);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -39,18 +39,6 @@ public class Hero {
     public Hero() {
     }
 
-//    public Hero(String name, String type, int life){
-//        this.name = name;
-//        this.type = type;
-//        this.life = life;
-//    }
-//    public Hero(String name, String type, int life, int id){
-//        this.id = id;
-//        this.name = name;
-//        this.type = type;
-//        this.life = life;
-//    }
-
     public int getId() {
         return id;
     }
