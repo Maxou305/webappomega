@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-//@Repository
 public class HeroController {
     private DAO heroDAO;
 
