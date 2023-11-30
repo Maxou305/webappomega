@@ -1,6 +1,9 @@
 package webapp.demo.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Classe Hero permettant d'instancier des héros.
@@ -11,28 +14,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
         "type": String,
         "life": int}
         """)
-
+@Entity
+@Table(name = "hero")
 public class Hero {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @NotBlank (message = "Le nom est obligatoire !")
     private String name;
+    @NotBlank (message = "Le type est obligatoire !")
     private String type;
+    @Max(value = 11, message = "La vie ne doit pas excéder 10 !")
     private int life;
 
     public Hero() {
-    }
-
-    /**
-     * Constructeur complet de Hero à 4 paramètres.
-     * @param id id du personnage (int)
-     * @param name nom du personnage (String)
-     * @param type type du personnage (String)
-     * @param life niveau de vie du personnage (int)
-     */
-    public Hero(int id, String name, String type, int life) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.life = life;
     }
 
     public int getId() {
@@ -76,4 +72,9 @@ public class Hero {
                 ", life = " + life +
                 '}';
     }
+
+    public void setId(Long id) {
+        this.id = Math.toIntExact(id);
+    }
+
 }
